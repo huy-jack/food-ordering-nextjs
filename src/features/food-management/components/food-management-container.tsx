@@ -2,20 +2,22 @@
 "use client";
 
 import { Food } from "@/shared/models";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FoodItemEdit } from "./";
 import { FoodHeader } from "./food-header";
 import { FoodInput } from "./food-input";
 import { MenuPreview } from "./menu-preview";
+import { useFoods } from "@/features/food-management/hooks/use-foods";
 
 export function FoodManagementContainer() {
   const [foodList, setFoodList] = useState<Food[]>([]);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [foodEditVisible, setFoodEditVisible] = useState(false);
+  const { foods, mutate } = useFoods();
 
-  const handleDeleteItem = (id: string) => {
-    setFoodList((prev) => prev.filter((item) => item.id !== id));
-  };
+  useEffect(() => {
+    if (foods.length) setFoodList(foods);
+  }, [foods]);
 
   const handleEditItem = (item: Food) => {
     setSelectedFood(item);
@@ -31,8 +33,32 @@ export function FoodManagementContainer() {
     setFoodList((prev) => [...prev, newItem]);
   };
 
-  const handleSaveItem = (updatedItem: Food) => {
-    setFoodList((prev) => prev.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
+  const handleSaveItem = async (updatedItem: Food) => {
+    setFoodList((prev) => prev.map((i) => (i.id === updatedItem.id ? updatedItem : i)));
+    await fetch(`/api/foods/${updatedItem.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: updatedItem.name, price: updatedItem.price }),
+    });
+    mutate();
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    setFoodList((prev) => prev.filter((i) => i.id !== id));
+    await fetch(`/api/foods/${id}`, { method: "DELETE" });
+    mutate();
+  };
+
+  const handleGenerateFood = async (list: Food[]) => {
+    setFoodList(list);
+    await fetch(`/api/foods`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: list.map(({ name, price }) => ({ name, price })),
+      }),
+    });
+    mutate();
   };
 
   return (
@@ -51,7 +77,7 @@ export function FoodManagementContainer() {
           <FoodHeader />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <FoodInput onGenerate={setFoodList} canAddItem={foodList.length > 0} onAddItem={handleAddItem} />
+            <FoodInput onGenerate={handleGenerateFood} canAddItem={foodList.length > 0} onAddItem={handleAddItem} />
 
             <MenuPreview
               items={foodList}
