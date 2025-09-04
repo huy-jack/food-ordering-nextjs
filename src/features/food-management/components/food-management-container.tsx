@@ -1,4 +1,3 @@
-// src/features/food-management/components/food-management-container.tsx
 "use client";
 
 import { Food } from "@/shared/models";

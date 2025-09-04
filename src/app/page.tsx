@@ -33,13 +33,21 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            <Link href="/food-management">
-              <Button size="lg" className="gap-2 text-base px-8 py-3">
-                <Utensils className="w-5 h-5" />
-                Manage Food Items
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href="/food-management">
+                <Button size="lg" className="gap-2 text-base px-8 py-3">
+                  <Utensils className="w-5 h-5" />
+                  Manage Food Items
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link href="/order">
+                <Button size="lg" variant="outline" className="gap-2 text-base px-8 py-3">
+                  Start Ordering
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-12 border-t">
               <div className="text-center">
